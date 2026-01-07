@@ -5,13 +5,12 @@ const morgan = require('morgan');
 app.use(morgan('dev'));
 
 app.use((req, res, next) => {
-    req.body = req.method;
-    req.request.Time = Date.now();
+    req.requestTime = Date.now();
     console.log(req.method, req.path);
     next();
 });
 
-app.use('dogs', (req, res, next) => {
+app.use('/dogs', (req, res, next) => {
     console.log('I LOVE DOGS');
     next();
 });
@@ -21,7 +20,8 @@ const verifyPassword = ((req, res, next) => {
     if (password === 'chickennugget') {
         next();
     } else {
-        res.status(401).send('SORRY YOU NEED A PASSWORD');
+        // res.status(401).send('SORRY YOU NEED A PASSWORD');
+        throw new Error('PASSWORD REQUIRED!!!');
     }
 });
 
@@ -40,8 +40,14 @@ const verifyPassword = ((req, res, next) => {
 
 // Sample route
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    console.log(`REQUEST DATE: ${req.request.Time}`)
+    res.send('Home Page!');
 });
+
+app.get('/error', (req, res) => {
+    chicken.fly()
+});
+
 
 app.get('/dogs', (req, res) => {
     console.log(`REQUEST DATE: ${req.request.Time}`)
