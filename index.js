@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
+const AppError = require('./AppError');
 
 app.use(morgan('tiny'));
 
@@ -20,8 +21,8 @@ const verifyPassword = ((req, res, next) => {
     if (password === 'chickennugget') {
         next();
     }
-    // res.status(401).send('SORRY YOU NEED A PASSWORD');
-    throw new Error('PASSWORD REQUIRED!!!');
+    res.status(401) //.send('You\'re not authorized!!!');
+    throw new AppError('PASSWORD REQUIRED!', 401);
 });
 
 // app.use((req, res, next) => {
@@ -60,17 +61,18 @@ app.get('/secret', verifyPassword, (req, res) => {
     res.send('MY SECRET IS: I LOVE CODING!');
 });
 
+app.get('/admin', (req, res) => {
+    throw new AppError('You are not an admin!', 403);
+});
+
 // 404 handler
 app.use((req, res) => {
     res.status(404).send({ error: 'Not Found' });
 });
 
 app.use((err, req, res, next) => {
-    console.log('********************')
-    console.log('********ERROR*******')
-    console.log('********************')
-    console.log(err)
-    next(err);
+    const { status = 500, message = 'Something went wrong' } = err;
+    res.status(status).send(message);
 });
 
 // Start the server
